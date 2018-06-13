@@ -16,10 +16,12 @@ library(mdsr)
 library(tidyverse)
 ```
 
+##QUESTION 1:
 ```{r}
 data("WorldCities")
 glimpse(WorldCities)
 ```
+
 
 ```{r}
 WorldCities <- head(WorldCities, 200) # 200 rows
@@ -27,11 +29,13 @@ country_col <- WorldCities$country
 unique(country_col)
 ```
 
+##QUESTION 2:
 ```{r}
 region_col <- WorldCities$region
 unique(region_col)
 ```
 
+##QUESTION 3:
 ```{r}
 WorldCities %>% select(country) %>% unique()
 ```
@@ -41,6 +45,7 @@ WorldCities %>% ggplot(aes(x = population)) +
   geom_histogram()
 ```
 
+##QUESTION 4:
 ```{r}
 WorldCities %>% ggplot(aes(x = population)) + 
   geom_histogram() + 
@@ -48,5 +53,10 @@ WorldCities %>% ggplot(aes(x = population)) +
   ylab('Number of Cities') +
   ggtitle('World City Count By Population') +
   theme_bw()
+```
+
+
+```{r}
+
 ```
 
