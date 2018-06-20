@@ -1,0 +1,62 @@
+---
+title: "COMPSCIX 415.2 Homework 1"
+author: "Jennifer Lu"
+date: "6/7/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+My Github repository for my assignments can be found at this URL: [https://github.com/jencake/compscix-415-2-assignments](https://github.com/jencake/compscix-415-2-assignments)
+
+```{r load_packages, warning=FALSE, message=FALSE}
+library(mdsr)
+library(tidyverse)
+```
+
+##QUESTION 1:
+```{r}
+data("WorldCities")
+glimpse(WorldCities)
+```
+
+
+```{r}
+WorldCities <- head(WorldCities, 200) # 200 rows
+country_col <- WorldCities$country
+unique(country_col)
+```
+
+##QUESTION 2:
+```{r}
+region_col <- WorldCities$region
+unique(region_col)
+```
+
+##QUESTION 3:
+```{r}
+WorldCities %>% select(country) %>% unique()
+```
+
+```{r}
+WorldCities %>% ggplot(aes(x = population)) + 
+  geom_histogram()
+```
+
+##QUESTION 4:
+```{r}
+WorldCities %>% ggplot(aes(x = population)) + 
+  geom_histogram() + 
+  xlab('City Population') +
+  ylab('Number of Cities') +
+  ggtitle('World City Count By Population') +
+  theme_bw()
+```
+
+
+```{r}
+
+```
+
