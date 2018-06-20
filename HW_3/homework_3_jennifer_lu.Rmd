@@ -1,0 +1,9 @@
+---
+title: "COMPSCIX 415.2 Homework 3"
+author: "Jennifer Lu"
+date: "6/19/2018"
+output:
+  html_document:
+    df_print: paged
+---
+
