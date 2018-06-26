@@ -7,3 +7,164 @@ output:
     df_print: paged
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_packages, warning=FALSE, message=FALSE}
+library(mdsr)
+library(tidyverse)
+library(nycflights13)
+```
+
+### 3.8.1 Exercises
+
+**1. What is the problem with this plot? How could you improve it?**
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
+  geom_point()
+```
+
+Not all the points are shown because some overlap. It would be helpful to add minute amount of random noise to each point so the graph is more revealing on a macro-level.
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
+  geom_point() + geom_jitter()
+```
+
+**2. What parameters to geom_jitter() control the amount of jittering?**
+
+width and height.
+
+**3. Compare and contrast geom_jitter() with geom_count().**
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
+  geom_count()
+```
+
+geom_count() counts the number of observations at each location and maps the count to point area. Whereas, geom_jitter() adds random noise to each point so you can see more of the individual points, although inaccurately.
+
+**4. What’s the default position adjustment for geom_boxplot()? Create a visualisation of the mpg dataset that demonstrates it.**
+
+The default position adjustment for geom_boxplot() is *dodge*.
+```{r}
+ggplot(data = mpg, mapping = aes(x = class, y = cty, fill = drv)) + 
+  geom_boxplot()
+```
+
+### 3.9.1 Exercises
+
+**2. What does labs() do? Read the documentation.**
+
+labs() is used to customize the text for the axis, plot title, caption, and subtitle of the plot.
+
+**4. What does the plot below tell you about the relationship between city and highway mpg? Why is coord_fixed() important? What does geom_abline() do?**
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+  geom_point() + 
+  geom_abline() +
+  coord_fixed()
+```
+
+The plot reveals that as a car with good city mileage will also have good highway mileage and a care with poor city mileage will have poor highway mileage. coord_fixed() is important because it normalizes the spread of the data values and allows the viewer to easily figure out the rate of change between the x values and y values. geom_abline() is added to summarize the trend of the plot.
+
+### 4.4 Practice
+
+**1. Why does this code not work?**
+
+```{r}
+my_variable <- 10
+my_variable
+#> Error in eval(expr, envir, enclos): object 'my_varıable' not found
+```
+
+**Look carefully! (This may seem like an exercise in pointlessness, but training your brain to notice even the tiniest difference will pay off when programming.)**
+
+The second "i" in "my_variable" isn't an "i".
+
+**2. Tweak each of the following R commands so that they run correctly:**
+
+```{r}
+library(tidyverse)
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+
+filter(mpg, cyl == 8)
+filter(diamonds, carat > 3)
+```
+
+### 5.2.4 Exercises
+
+**1. Find all flights that**
+
+  1. Had an arrival delay of two or more hours
+    ```{r}
+    filter(flights, arr_delay >= 2*60)
+    ```
+  
+  2. Flew to Houston (IAH or HOU)
+    ```{r}
+    filter(flights, dest %in% c('IAH', 'HOU'))
+    ```  
+  3. Were operated by United, American, or Delta
+    ```{r}
+    filter(flights, carrier %in% c('UA', 'AA', 'DL'))
+    ``` 
+  4. Departed in summer (July, August, and September)
+    ```{r}
+    filter(flights, month %in% c(7, 8, 9))
+    ``` 
+  5. Arrived more than two hours late, but didn’t leave late
+    ```{r}
+    filter(flights, dep_delay <= 0 & arr_delay > 2*60)
+    ```   
+  6. Were delayed by at least an hour, but made up over 30 minutes in flight
+    ```{r}
+    filter(flights, dep_delay >= 60 & arr_delay < 30)
+    ```     
+  7. Departed between midnight and 6am (inclusive)
+    ```{r}
+    filter(flights, dep_time >= 0 & dep_time <= 6*60)
+    ```   
+    
+**3. How many flights have a missing dep_time? What other variables are missing? What might these rows represent?**
+
+```{r}
+filter(flights, is.na(dep_time))
+``` 
+    
+8,255 flights have a missing dep_time. dep_delay, arr_time, arr_delay, and       air_time are also missing. These rows probably represent cancelled flights.
+
+**4. Why is NA ^ 0 not missing? Why is NA | TRUE not missing? Why is FALSE & NA not missing? Can you figure out the general rule? (NA * 0 is a tricky counterexample!)**
+
+```{r}
+NA ^ 0
+NA | TRUE
+FALSE & NA
+NA * 0
+``` 
+
+NA ^ 0 is not missing because any value raised to the zeroth power is one. Missing means that we currently cannot fill in this cell in the data, but when we do, no matter what number it is, that number raised to the zeroth power will evaluate to one. Similarly, anything logical or'd with TRUE will always be TRUE and FALSE & anything will always be FALSE. NA * 0 should follow this rule because mathematically, anything multiplied by zero should also equal to zero, but it's an outlier in this case.
+
+### 5.4.1 Exercises
+
+**1. Brainstorm as many ways as possible to select dep_time, dep_delay, arr_time, and arr_delay from flights.**
+
+```{r}
+select(flights, dep_time, dep_delay, arr_time, arr_delay)
+select(flights, dep_time, dep_delay:arr_time, arr_delay)
+select(flights, one_of(c("dep_time", "arr_time", "dep_delay", "arr_delay")))
+select(flights, starts_with("dep"), starts_with("arr"))
+select(flights, matches("^(dep|arr)"))
+```
+
+**3. What does the one_of() function do? Why might it be helpful in conjunction with this vector?**
+```{r}
+vars <- c("year", "month", "day", "dep_delay", "arr_delay")
+```
+
+one_of() selects columns that are part of a vector passed to it. This vector can be passed to one_of() to select all those columns.
