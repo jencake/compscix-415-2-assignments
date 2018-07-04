@@ -1,0 +1,220 @@
+---
+title: "COMPSCIX 415.2 Homework 3"
+author: "Jennifer Lu"
+date: "6/19/2018"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_packages, warning=FALSE, message=FALSE}
+library(mdsr)
+library(tidyverse)
+library(nycflights13)
+```
+
+### Section 5.6.7:
+
+**2. Come up with another approach that will give you the same output as not_cancelled %>% count(dest) and not_cancelled %>% count(tailnum, wt = distance) (without using count()).**
+
+```{r}
+not_cancelled <- flights %>% 
+  filter(!is.na(dep_delay), !is.na(arr_delay))
+
+not_cancelled %>%
+  group_by(dest) %>%
+  summarize(n())
+
+not_cancelled %>%
+  group_by(tailnum) %>%
+  summarize(wt = sum(distance))
+```
+
+**4. Look at the number of cancelled flights per day. Is there a pattern? Is the proportion of cancelled flights related to the average delay?**
+
+```{r}
+flights %>% 
+  mutate(dep_date = lubridate::make_datetime(year, month, day)) %>%
+  group_by(dep_date) %>%
+  summarize(
+    cancelled_count = sum(is.na(dep_delay) | is.na(arr_delay)),
+    cancelled_prop = mean(is.na(dep_delay) | is.na(arr_delay))
+  ) %>%
+  ggplot(aes(x=dep_date, y=cancelled_count)) +
+  geom_smooth(aes(y=cancelled_count), color='blue') +
+  geom_smooth(aes(y=cancelled_prop*1000), color='red')
+```
+
+It looks like the number of delays per day matches the proportion of delays per day. And Christmas, New Years, and summer months seem to have the worst delays, probably because the airports get busier during those times.
+
+**5. Which carrier has the worst delays? Challenge: can you disentangle the effects of bad airports vs. bad carriers? Why/why not? (Hint: think about flights %>% group_by(carrier, dest) %>% summarise(n()))**
+
+```{r}
+flights %>% 
+    group_by(carrier) %>% 
+    count(wt = dep_delay | arr_delay, sort = TRUE)
+```
+
+```{r}
+delays_by_dep <- flights %>% group_by(carrier, origin) %>%
+  summarize(
+    dep_delay_count = sum(!is.na(dep_delay))
+  ) 
+delays_by_dep %>%
+  ggplot() +
+  geom_col(mapping = aes(x=origin, y=dep_delay_count, fill=carrier))
+
+```
+
+By departure, it seems like B6, UA, and EV have the worst delays while planes departing from EWR have the worst delays.
+
+**6. What does the sort argument to count() do. When might you use it?**
+
+sort controls the order of the output. When TRUE, it will sort the output in descending order, and when FALSE, it will sort the output in ascending order.
+
+### Section 10.5:
+
+**1. How can you tell if an object is a tibble? (Hint: try printing mtcars, which is a regular data frame).**
+```{r}
+mtcars
+```
+
+You can type the object name and if it's a tibble, it will be shown on the first line of the display.
+
+**2. Compare and contrast the following operations on a data.frame and equivalent tibble. What is different? Why might the default data frame behaviours cause you frustration?**
+
+```{r}
+df <- data.frame(abc = 1, xyz = "a")
+df$x
+df[, "xyz"]
+df[, c("abc", "xyz")]
+```
+
+Tibbles are more strict than a data.frame. Tibbles never allow partial matching and will generate a warning if the column that you're attempting to access does not exist.
+
+**3. If you have the name of a variable stored in an object, e.g. var <- "mpg", how can you extract the reference variable from a tibble?**
+```{r}
+mtcars_tibble <- as_tibble(mtcars)
+var <- "mpg"
+mtcars_tibble[var]
+```
+
+**6. What option controls how many additional column names are printed at the footer of a tibble?**
+
+```{r}
+flights %>% 
+     print(n_extra=4)
+```
+
+### Section 12.3.3:
+
+**2. Why does this code fail?**
+
+```{r}
+table4a %>% 
+  gather('1999', '2000', key = "year", value = "cases")
+#> Error in inds_combine(.vars, ind_list): Position must be between 0 and n
+```
+
+1999 and 2000 are non-syntactic variable names and need to be surrounded by a variable.
+
+**3. Why does spreading this tibble fail? How could you add a new column to fix the problem?**
+
+```{r}
+people <- tribble(
+  ~name,             ~key,    ~value,
+  #-----------------|--------|------
+  "Phillip Woods",   "age",       45,
+  "Phillip Woods",   "height",   186,
+  "Phillip Woods",   "age",       50,
+  "Jessica Cordero", "age",       37,
+  "Jessica Cordero", "height",   156
+)
+```
+
+It fails because there are two Phillip Woods with different ages so they are clearly two different people with the same name. This can be fixed by adding a pid column to differentiate the two different Phillip Woods.
+
+```{r}
+people <- tribble(
+  ~name,             ~key,    ~value, ~pid,
+  #-----------------|--------|-------|------
+  "Phillip Woods",   "age",       45,  1,
+  "Phillip Woods",   "height",   186,  1,
+  "Phillip Woods",   "age",       50,  2,
+  "Jessica Cordero", "age",       37,  3,
+  "Jessica Cordero", "height",   156,  3
+)
+
+people %>%
+    spread(key = key, value = value)
+```
+
+**4. Tidy the simple tibble below. Do you need to spread or gather it? What are the variables?**
+
+```{r}
+preg <- tribble(
+  ~pregnant, ~male, ~female,
+  "yes",     NA,    10,
+  "no",      20,    12
+)
+```
+
+It needs to be gathered because 'male' and 'female' are values instead of variables. The variables are 'gender' and 'count.'
+
+```{r}
+preg %>%
+  gather(male, female, key="gender", value="count")
+```
+
+### Section 12.4.3:
+
+**1. What do the extra and fill arguments do in separate()? Experiment with the various options for the following two toy datasets.**
+
+```{r}
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>% 
+  separate(x, c("one", "two", "three"))
+
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>% 
+  separate(x, c("one", "two", "three"))
+```
+
+'extra' controls what happens when there are too many pieces. There are three valid options:
+
+  - "warn" (the default): emit a warning and drop extra values.
+  - "drop": drop any extra values without a warning.
+  - "merge": only splits at most length(into) times
+  
+'fill' controls what happens when there are not enough pieces. There are three valid options:
+
+  - "warn" (the default): emit a warning and fill from the right
+  - "right": fill with missing values on the right
+  - "left": fill with missing values on the left
+  
+**2. Both unite() and separate() have a remove argument. What does it do? Why would you set it to FALSE?**
+
+When 'remove' is set to FALSE, you keep the original variable when adding the new variable(s). When 'remove' is set to TRUE, the original variable is replaced with the new variable(s).
+
+### Additional Questions:
+
+Follow these steps:
+- Download the baby_names.txt file from Canvas which is in the Homework 4 assignment section.
+- Load this file into R correctly and take a glimpse of the output.
+- Export this file as a csv file and call it ‘baby_names.csv’.
+- Reload the baby_names.csv file and take another glimpse.
+- Show all of your code and the output. There should be two data import lines of code, one data export line of code, and two glimpses of the data.
+
+```{r}
+library(tidyverse)
+
+baby_names_fr_txt_file <- read_delim(file = 'baby_names.txt', delim='|')
+glimpse(baby_names_fr_txt_file)
+
+write_csv(baby_names_fr_txt_file, path = 'baby_names.csv')
+baby_names_fr_csv_file <- read_csv(file = 'baby_names.csv')
+glimpse(baby_names_fr_csv_file)
+```
+
