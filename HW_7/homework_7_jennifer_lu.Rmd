@@ -102,10 +102,21 @@ glance(neighborhood_lm)
 Answer these questions:
 
 - How would you interpret the coefficients on GrLivArea and OverallQual?
+There is a positive linear corrolation between GrLivArea and SalePrice, and OverallQual and SalePrice. Although, SalePrice is much more sensitive to changes in OverallQual than GrLivArea.
+
 - How would you interpret the coefficient on NeighborhoodBrkSide?
+Different neighborhoods have different cost.
+
 - Are the features significant?
+
+The probability of getting a coefficient of 107 or bigger, if there was actually no relationship between GrLivArea and SalePrice, is 0.000036, so we conclude that GrLivArea is a significant predictor of SalePrice. The probability of getting a coefficient of 45435.8 or bigger, if there was actually no relationship between OverallQual and SalePrice, is 2.185675e-313, so we conclude that Overall is a significant predictor of SalePrice.
+
 - Are the features practically significant?
+
+Yes, bigger houses cost more and better quality houses cost more.
+
 - Is the model a good fit?
+Yes.
 
 ## Exercise 5 (OPTIONAL - won’t be graded)
 Feel free to play around with linear regression. Add some other features and see how the model results change.
@@ -113,14 +124,21 @@ Feel free to play around with linear regression. Add some other features and see
 ## Exercise 6
 One downside of the linear model is that it is sensitive to unusual values because the distance incorporates a squared term. Fit a linear model to the simulated data below (use y as the target and x as the feature), and look at the resulting coefficients and R-squared. Rerun it about 5-6 times to generate different simulated datasets. What do you notice about the model’s coefficient on x and the R-squared values?
 
-```{r}
+```{r, warning=FALSE}
+sim1a_lm_list <- rep(NA, 6)
+sim1a_tidy_list <- rep(NA, 6)
+sim1a_glance_list <- rep(NA, 6)
 for(i in 1:6) {
   sim1a <- tibble(
     x = rep(1:10, each = 3),
     y = x * 1.5 + 6 + rt(length(x), df = 2)
   )
-  sim_lm <- lm(formula = y ~ x, data = sim1a)
-  tidy(sim_lm)
-  glance(sim_lm)
+  sim1a_lm <- lm(formula = y ~ x, data = sim1a)
+  sim1a_lm_list[i] <- sim1a_lm
+  sim1a_tidy_list[i] <- tidy(sim1a_lm)
+  sim1a_glance_list[i] <- glance(sim1a_lm)
 }
+sim1a_lm_list
+sim1a_tidy_list
+sim1a_glance_list
 ```
