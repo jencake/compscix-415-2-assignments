@@ -52,6 +52,7 @@ ggplot(data = train_from_csv, mapping = aes(x=OverallQual, y=SalePrice)) +
   geom_point(alpha=0.3, color="blue") +
   geom_smooth()
 ```
+
 ## Exercise 3
 Our target is called SalePrice. First, we can fit a simple regression model consisting of only the intercept (the average of SalePrice). Fit the model and then use the broom package to
 ```{r}
@@ -123,21 +124,54 @@ Feel free to play around with linear regression. Add some other features and see
 ## Exercise 6
 One downside of the linear model is that it is sensitive to unusual values because the distance incorporates a squared term. Fit a linear model to the simulated data below (use y as the target and x as the feature), and look at the resulting coefficients and R-squared. Rerun it about 5-6 times to generate different simulated datasets. What do you notice about the model’s coefficient on x and the R-squared values?
 
+There is a ton of variability among the coefficient on x and the R-squared values.
+
 ```{r, warning=FALSE}
-sim1a_lm_list <- rep(NA, 6)
-sim1a_tidy_list <- rep(NA, 6)
-sim1a_glance_list <- rep(NA, 6)
-for(i in 1:6) {
-  sim1a <- tibble(
-    x = rep(1:10, each = 3),
-    y = x * 1.5 + 6 + rt(length(x), df = 2)
-  )
-  sim1a_lm <- lm(formula = y ~ x, data = sim1a)
-  sim1a_lm_list[i] <- sim1a_lm
-  sim1a_tidy_list[i] <- tidy(sim1a_lm)
-  sim1a_glance_list[i] <- glance(sim1a_lm)
-}
-sim1a_lm_list
-sim1a_tidy_list
-sim1a_glance_list
+sim1a <- tibble(
+  x = rep(1:10, each = 3),
+  y = x * 1.5 + 6 + rt(length(x), df = 2)
+)
+sim1a_lm <- lm(formula = y ~ x, data = sim1a)
+tidy(sim1a_lm)
+glance(sim1a_lm)
+
+sim2a <- tibble(
+  x = rep(1:10, each = 3),
+  y = x * 1.5 + 6 + rt(length(x), df = 2)
+)
+sim2a_lm <- lm(formula = y ~ x, data = sim2a)
+tidy(sim2a_lm)
+glance(sim2a_lm)
+
+sim3a <- tibble(
+  x = rep(1:10, each = 3),
+  y = x * 1.5 + 6 + rt(length(x), df = 2)
+)
+sim3a_lm <- lm(formula = y ~ x, data = sim3a)
+tidy(sim3a_lm)
+glance(sim3a_lm)
+
+sim4a <- tibble(
+  x = rep(1:10, each = 3),
+  y = x * 1.5 + 6 + rt(length(x), df = 2)
+)
+sim4a_lm <- lm(formula = y ~ x, data = sim4a)
+tidy(sim4a_lm)
+glance(sim4a_lm)
+
+sim5a <- tibble(
+  x = rep(1:10, each = 3),
+  y = x * 1.5 + 6 + rt(length(x), df = 2)
+)
+sim5a_lm <- lm(formula = y ~ x, data = sim5a)
+tidy(sim5a_lm)
+glance(sim5a_lm)
+
+sim6a <- tibble(
+  x = rep(1:10, each = 3),
+  y = x * 1.5 + 6 + rt(length(x), df = 2)
+)
+sim6a_lm <- lm(formula = y ~ x, data = sim6a)
+tidy(sim6a_lm)
+glance(sim6a_lm)
 ```
