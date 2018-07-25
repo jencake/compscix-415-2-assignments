@@ -1,0 +1,126 @@
+---
+title: "COMPSCIX 415.2 Homework 7"
+author: "Jennifer Lu"
+date: "7/22/2018"
+output:
+  html_document:
+    toc: true
+    theme: united
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_packages, warning=FALSE, message=FALSE}
+library(mdsr)
+library(tidyverse)
+library(nycflights13)
+library(broom)
+```
+
+## Exercise 1
+Load the train.csv dataset into R. How many observations and columns are there?
+```{r}
+train_from_csv <- read_csv('train.csv')
+glimpse(train_from_csv)
+```
+
+There are 1,460 observations and 81 columns.
+
+## Exercise 2
+Normally at this point you would spend a few days on EDA, but for this homework we will do some very basic EDA and get right to fitting some linear regression models.
+
+Our target will be SalePrice.
+
+- Visualize the distribution of SalePrice.
+```{r}
+ggplot(data = train_from_csv) +
+  geom_histogram(mapping = aes(x=SalePrice))
+```
+
+- Visualize the covariation between SalePrice and Neighborhood.
+```{r}
+ggplot(data = train_from_csv) +
+  geom_col(mapping = aes(x=Neighborhood, y=SalePrice)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+- Visualize the covariation between SalePrice and OverallQual.
+```{r}
+ggplot(data = train_from_csv) +
+  geom_col(mapping = aes(x=OverallQual, y=SalePrice)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+## Exercise 3
+Our target is called SalePrice. First, we can fit a simple regression model consisting of only the intercept (the average of SalePrice). Fit the model and then use the broom package to
+```{r}
+saleprice_lm <- lm(formula = SalePrice ~ 1, data = train_from_csv)
+saleprice_lm
+```
+
+- take a look at the coefficient,
+```{r}
+tidy(saleprice_lm)
+```
+- compare the coefficient to the average value of SalePrice, and
+
+Error is pretty high.
+
+- take a look at the R-squared.
+
+```{r}
+glance(saleprice_lm)
+```
+
+The linear model doesn't fit very well because R-squared is low.
+
+## Exercise 4
+Now fit a linear regression model using GrLivArea, OverallQual, and Neighborhood as the features. Don’t forget to look at  data_description.txt to understand what these variables mean. Ask yourself these questions before fitting the model:
+```{r}
+area_lm <- lm(formula = SalePrice ~ GrLivArea, data = train_from_csv)
+tidy(area_lm)
+qual_lm <- lm(formula = SalePrice ~ OverallQual, data = train_from_csv)
+tidy(qual_lm)
+neighborhood_lm <- lm(formula = SalePrice ~ Neighborhood, data = train_from_csv)
+tidy(neighborhood_lm)
+```
+- What kind of relationship will these features have with our target?
+They will have a linear relationship
+- Can the relationship be estimated linearly?
+Yes.
+- Are these good features, given the problem we are trying to solve?
+Yes.
+- After fitting the model, output the coefficients and the R-squared using the broom package.
+```{r}
+glance(area_lm)
+glance(qual_lm)
+glance(neighborhood_lm)
+```
+
+Answer these questions:
+
+- How would you interpret the coefficients on GrLivArea and OverallQual?
+- How would you interpret the coefficient on NeighborhoodBrkSide?
+- Are the features significant?
+- Are the features practically significant?
+- Is the model a good fit?
+
+## Exercise 5 (OPTIONAL - won’t be graded)
+Feel free to play around with linear regression. Add some other features and see how the model results change.
+
+## Exercise 6
+One downside of the linear model is that it is sensitive to unusual values because the distance incorporates a squared term. Fit a linear model to the simulated data below (use y as the target and x as the feature), and look at the resulting coefficients and R-squared. Rerun it about 5-6 times to generate different simulated datasets. What do you notice about the model’s coefficient on x and the R-squared values?
+
+```{r}
+for(i in 1:6) {
+  sim1a <- tibble(
+    x = rep(1:10, each = 3),
+    y = x * 1.5 + 6 + rt(length(x), df = 2)
+  )
+  sim_lm <- lm(formula = y ~ x, data = sim1a)
+  tidy(sim_lm)
+  glance(sim_lm)
+}
+```
