@@ -19,6 +19,7 @@ library(leaflet)
 library(jsonlite)
 library(rgdal)
 library(ggmap)
+library(htmltools)
 ```
 
 ## Excercise 1
@@ -31,10 +32,17 @@ Name your function map_it. To pull the data, you will use the fromJSON function 
 map_city <- function(city_name) {
   city_coordinates <- geocode(city_name)
   url <- paste0("https://api.jcdecaux.com/vls/v1/stations?contract=",city_name,"&apiKey=fab70d362618bbc134adbda126f3049d0bbd481d")
-  bike_data <- fromJSON(url) %>% select(available_bikes, position)
-  map <- leaflet(bike_data$position) %>%
-  addTiles() %>%
-  addMarkers()
+  bike_data <- fromJSON(url)
+  av_bikes <- lat <- lng <- list()
+  for (i in i:length(bike_data$available_bikes)) {
+    av_bikes[i] <- paste0(bike_data$available_bikes[i], ' bikes are available')
+  }
+  lat <- bike_data$position[[1]]
+  lng <- bike_data$position[[2]]
+  bike_tibble <- tibble('available_bikes'=av_bikes, 'lat'=lat, 'lng'=lng)
+  map <- leaflet(bike_tibble) %>%
+    addTiles() %>%
+    addMarkers(~lng, ~lat, label=~available_bikes)
   return(map)
 }
 ### You can use this vector of city names to test your function
